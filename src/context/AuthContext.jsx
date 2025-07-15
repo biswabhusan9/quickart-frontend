@@ -20,6 +20,8 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
+      console.log(getBackendUrl());
+      
       const response = await fetch(`${getBackendUrl()}/api/me`, {
         credentials: 'include'
       });
