@@ -25,7 +25,7 @@ const CategoryProduct = () => {
     useEffect(()=>{
         getFilterData()
         window.scroll(0,0)
-    })
+    },[category])
     
   return (
     <div>

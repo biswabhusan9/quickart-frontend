@@ -17,6 +17,7 @@ const SingleProduct = () => {
 
     useEffect(() => {
         if (data) {
+            console.log('🚀 useEffect triggered for product id:', params.id);
             const found = data.find(p => p.id === Number(params.id));
             setSingleProduct(found || "");
         }
