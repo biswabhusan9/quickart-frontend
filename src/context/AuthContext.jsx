@@ -4,10 +4,12 @@ const AuthContext = createContext();
 
 // Helper to get backend URL
 const getBackendUrl = () => {
-  // Use environment variable or fallback
-  return import.meta && import.meta.env && import.meta.env.VITE_API_URL
+  // Use environment variable or fallback to Vercel deployment
+  const apiUrl = import.meta && import.meta.env && import.meta.env.VITE_API_URL
     ? import.meta.env.VITE_API_URL
-    : 'http://localhost:3001';
+    : 'https://quickart-backend-peach.vercel.app';
+  
+  return apiUrl;
 };
 
 export const AuthProvider = ({ children }) => {
@@ -20,14 +22,16 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      console.log(getBackendUrl());
+      const apiUrl = getBackendUrl();
       
-      const response = await fetch(`${getBackendUrl()}/api/me`, {
+      const response = await fetch(`${apiUrl}/api/me`, {
         credentials: 'include'
       });
+      
       if (response && response.ok) {
         const userData = await response.json();
         setUser(userData);
+      } else {
       }
     } catch (err) {
       console.error('Auth check failed:', err);
@@ -38,7 +42,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await fetch(`${getBackendUrl()}/api/login`, {
+      const apiUrl = getBackendUrl();
+      
+      const response = await fetch(`${apiUrl}/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,6 +52,7 @@ export const AuthProvider = ({ children }) => {
         credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
+      
       if (response && response.ok) {
         const userData = await response.json();
         setUser(userData);
@@ -57,24 +64,28 @@ export const AuthProvider = ({ children }) => {
         return { success: false, error: 'Network error' };
       }
     } catch (err) {
+      console.error('Login error:', err);
       return { success: false, error: 'Network error' };
     }
   };
 
-  const register = async (email, password) => {
+  const register = async (firstName, lastName, email, password) => {
     try {
-      const response = await fetch(`${getBackendUrl()}/api/register`, {
+      const apiUrl = getBackendUrl();
+      
+      const response = await fetch(`${apiUrl}/api/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ email, password, role: 'user' }),
+        body: JSON.stringify({ firstName, lastName, email, password, role: 'user' }),
       });
+      
       if (response && response.ok) {
-        const userData = await response.json();
-        setUser(userData);
-        return { success: true, user: userData };
+        // Don't automatically log in the user after signup
+        // Just return success without setting user state
+        return { success: true };
       } else if (response) {
         const error = await response.json();
         return { success: false, error: error.error };
@@ -82,13 +93,44 @@ export const AuthProvider = ({ children }) => {
         return { success: false, error: 'Network error' };
       }
     } catch (err) {
+      console.error('Register error:', err);
+      return { success: false, error: 'Network error' };
+    }
+  };
+
+  const updateUser = async (userData) => {
+    try {
+      const apiUrl = getBackendUrl();
+      
+      const response = await fetch(`${apiUrl}/api/me`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(userData),
+      });
+      
+      if (response && response.ok) {
+        const updatedUser = await response.json();
+        setUser(updatedUser);
+        return { success: true, user: updatedUser };
+      } else if (response) {
+        const error = await response.json();
+        return { success: false, error: error.error };
+      } else {
+        return { success: false, error: 'Network error' };
+      }
+    } catch (err) {
+      console.error('Update error:', err);
       return { success: false, error: 'Network error' };
     }
   };
 
   const logout = async () => {
     try {
-      await fetch(`${getBackendUrl()}/api/logout`, {
+      const apiUrl = getBackendUrl();
+      await fetch(`${apiUrl}/api/logout`, {
         method: 'POST',
         credentials: 'include'
       });
@@ -101,7 +143,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, register, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, register, updateUser, loading }}>
       {children}
     </AuthContext.Provider>
   );

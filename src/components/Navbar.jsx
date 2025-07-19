@@ -2,14 +2,15 @@
 import { useAuth } from '../context/AuthContext'
 
 import { MapPin } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { CgClose } from 'react-icons/cg'
-import { FaCaretDown, FaUserCircle } from 'react-icons/fa'
+import { FaCaretDown, FaUserCircle, FaUser, FaSignOutAlt, FaCog } from 'react-icons/fa'
 import { IoCartOutline } from 'react-icons/io5'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { HiMenuAlt1, HiMenuAlt3 } from 'react-icons/hi'
 import ResponsiveMenu from './ResponsiveMenu'
+import { UserCircleIcon } from '@heroicons/react/24/outline';
 
 const Navbar = ({ location, getLocation, openDropdown, setOpenDropdown }) => {
   const { user, logout } = useAuth();
@@ -17,11 +18,35 @@ const Navbar = ({ location, getLocation, openDropdown, setOpenDropdown }) => {
   const { cartItem } = useCart()
   const [openNav, setOpenNav] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
   const navigate = useNavigate();
+
+  // Close profile dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setProfileOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const toggleDropdown = () => {
     setOpenDropdown(!openDropdown)
   }
+
+  const handleLogout = () => {
+    logout();
+    setProfileOpen(false);
+    navigate('/');
+  };
+
+  const handleProfileClick = () => {
+    setProfileOpen(false);
+    navigate('/profile');
+  };
 
   return (
     <div className='bg-white py-3 shadow-2xl px-4 md:px-0'>
@@ -51,50 +76,87 @@ const Navbar = ({ location, getLocation, openDropdown, setOpenDropdown }) => {
             <NavLink to={"/products"} className={({ isActive }) => `${isActive ? "border-b-3 transition-all border-red-500" : ""} cursor-pointer`}><li>Products </li></NavLink>
             <NavLink to={"/about"} className={({ isActive }) => `${isActive ? "border-b-3 transition-all border-red-500" : ""} cursor-pointer`}><li>About</li></NavLink>
             <NavLink to={"/contact"} className={({ isActive }) => `${isActive ? "border-b-3 transition-all border-red-500" : ""} cursor-pointer`}><li>Contact</li></NavLink>
-            <NavLink to={"/orders"} className={({ isActive }) => `${isActive ? "border-b-3 transition-all border-red-500" : ""} cursor-pointer`}><li>Orders</li></NavLink>
-
+            {user && (
+              <NavLink to={"/orders"} className={({ isActive }) => `${isActive ? "border-b-3 transition-all border-red-500" : ""} cursor-pointer`}><li>Orders</li></NavLink>
+            )}
           </ul>
           <Link to={"/cart"} className='relative'>
             <IoCartOutline className='h-7 w-7' />
             <span className='bg-red-500 px-2 rounded-full absolute -top-3 -right-3 text-white'>{cartItem.length}</span>
           </Link>
-          {/* <div className='hidden md:block'>
-            <SignedOut>
-              <SignInButton className="bg-red-500 text-white px-3 py-1 rounded-md cursor-pointer"/>
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-          </div> */}
+          
+          {/* Desktop Profile Section */}
           <div className='hidden md:block'>
             {!user ? (
               <button 
                 onClick={() => navigate('/login')}
-                className="bg-red-500 text-white px-3 py-1 rounded-md cursor-pointer"
+                className="bg-red-500 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-red-600 transition-colors font-medium"
               >
                 Sign In
               </button>
             ) : (
-              <div className="relative flex items-center gap-2">
-                <button onClick={() => setProfileOpen(!profileOpen)} className="focus:outline-none">
-                  <FaUserCircle className="text-3xl text-gray-700 hover:text-red-500 transition" />
+              <div className="relative" ref={profileRef}>
+                <button 
+                  onClick={() => setProfileOpen(!profileOpen)} 
+                  className="focus:outline-none hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                >
+                  <FaUserCircle className="h-8 w-8 text-gray-700" />
                 </button>
+                
                 {profileOpen && (
-                  <div className="absolute right-0 top-10 bg-white shadow-lg rounded-md border w-56 z-50 p-4 flex flex-col gap-2">
-                    <div className="flex flex-col gap-1 border-b pb-2">
-                      <span className="font-semibold text-gray-800 truncate max-w-[180px]" title={user.email}>{user.email.length > 22 ? user.email.slice(0, 19) + '...' : user.email}</span>
-                      <span className="text-xs text-gray-500 capitalize">Role: {user.role === 'admin' ? 'Admin' : 'User'}</span>
+                  <div className="absolute right-0 top-12 bg-white shadow-xl rounded-lg border border-gray-200 w-64 z-50 overflow-hidden">
+                    <div className='p-4 border-b border-gray-100'>
+                      <div className='flex items-center gap-3'>
+                        <FaUserCircle size={40} className='text-gray-600' />
+                        <div className='flex-1 min-w-0'>
+                          <h3 className='font-semibold text-gray-800 truncate'>
+                            {user.firstName} {user.lastName}
+                          </h3>
+                          <p className='text-sm text-gray-500 truncate'>{user.email}</p>
+                          <p className='text-xs text-gray-400 capitalize mt-1'>
+                            Role: {user.role === 'admin' ? 'Admin' : 'User'}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    {user.role === 'admin' && (
-                      <button onClick={() => { setProfileOpen(false); navigate('/admin-dashboard'); }} className="text-left px-2 py-1 rounded hover:bg-gray-100 text-red-500 font-semibold">Admin Dashboard</button>
-                    )}
-                    <button onClick={() => { setProfileOpen(false); logout(); }} className="text-left px-2 py-1 rounded hover:bg-gray-100 text-gray-700">Logout</button>
+                    
+                    <div className='py-2'>
+                      <button 
+                        onClick={handleProfileClick}
+                        className='w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors'
+                      >
+                        <FaUser className='text-gray-500' />
+                        <span className='text-gray-700'>My Profile</span>
+                      </button>
+                      
+                      {user.role === 'admin' && (
+                        <button 
+                          onClick={() => { 
+                            setProfileOpen(false); 
+                            navigate('/admin-dashboard'); 
+                          }} 
+                          className='w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors'
+                        >
+                          <FaCog className='text-gray-500' />
+                          <span className='text-gray-700'>Admin Dashboard</span>
+                        </button>
+                      )}
+                      
+                      <button 
+                        onClick={handleLogout} 
+                        className='w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors text-red-600'
+                      >
+                        <FaSignOutAlt />
+                        <span>Logout</span>
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
             )}
           </div>
 
+          {/* Mobile Menu Button */}
           {
             openNav ? <HiMenuAlt3 onClick={() => setOpenNav(false)} className='h-7 w-7 md:hidden' /> : <HiMenuAlt1
               onClick={() => setOpenNav(true)}

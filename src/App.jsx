@@ -17,6 +17,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import { useAuth } from './context/AuthContext';
 import AdminDashboard from './pages/AdminDashboard';
+import Profile from './pages/Profile';
 
 const App = () => {
   const [location, setLocation] = useState();
@@ -71,6 +72,7 @@ const App = () => {
         <Route path='/contact' element={<Contact />} />
         <Route path='/cart' element={<ProtectedRouts><Cart location={location} getLocation={getLocation} /></ProtectedRouts>} />
         <Route path='/orders' element={<ProtectedRouts><Orders /></ProtectedRouts>} />
+        <Route path='/profile' element={<ProtectedRouts><Profile /></ProtectedRouts>} />
         <Route path='/login' element={<Login />} />
         <Route path='/signup' element={<Signup />} />
         <Route path='/admin-dashboard' element={user && user.role === 'admin' ? <AdminDashboard /> : <Navigate to='/' replace />} />

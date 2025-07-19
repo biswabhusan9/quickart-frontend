@@ -1,49 +1,34 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-const getBackendUrl = () => {
-  // Use environment variable or fallback
-  return import.meta && import.meta.env && import.meta.env.VITE_API_URL
-    ? import.meta.env.VITE_API_URL
-    : 'http://localhost:3001';
-};
+import { useAuth } from '../context/AuthContext';
 
 const Signup = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
+  const { register } = useAuth();
 
   const handleSignup = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-    setSuccess('');
-    try {
-      const response = await fetch(`${getBackendUrl()}/api/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password, role: 'user' }),
-        credentials: 'include',
-      });
-      const data = response && response.ok ? await response.json() : null;
-      if (response && response.ok) {
-        setSuccess('Signup successful! Please sign in.');
-        setTimeout(() => navigate('/login'), 1500);
-      } else if (response) {
-        setError(data?.error || 'Signup failed');
-      } else {
-        setError('Network error. Please try again.');
-      }
-    } catch (err) {
-      setError('Network error. Please try again.');
-    } finally {
-      setLoading(false);
+    setError("");
+    setSuccess("");
+    
+    const result = await register(firstName, lastName, email, password);
+    
+    if (result.success) {
+      setSuccess('Account created successfully! Please sign in to continue.');
+      setTimeout(() => navigate('/login', { state: { fromSignup: true } }), 2000);
+    } else {
+      setError(result.error || 'Signup failed');
     }
+    
+    setLoading(false);
   };
 
   return (
@@ -51,9 +36,42 @@ const Signup = () => {
       <div className="bg-white/90 rounded-2xl shadow-2xl p-8 w-full max-w-md">
         <h2 className="text-3xl font-bold text-center text-red-600 mb-2">Sign Up</h2>
         <p className="text-center text-gray-600 mb-6">Create your <span className="font-semibold text-red-500">QuicKart</span> account</p>
-        {error && <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-2 rounded mb-4 text-center">{error}</div>}
-        {success && <div className="bg-green-100 border border-green-300 text-green-700 px-4 py-2 rounded mb-4 text-center">{success}</div>}
+        
+        {error && (
+          <div className="mb-4 p-3 rounded bg-red-100 text-red-700 border border-red-300">
+            {error}
+          </div>
+        )}
+        
+        {success && (
+          <div className="mb-4 p-3 rounded bg-green-100 text-green-700 border border-green-300">
+            {success}
+          </div>
+        )}
+        
         <form onSubmit={handleSignup} className="space-y-5">
+          <div>
+            <label className="block text-gray-700 mb-1">First Name</label>
+            <input
+              type="text"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-400"
+              placeholder="Enter your first name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700 mb-1">Last Name</label>
+            <input
+              type="text"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-400"
+              placeholder="Enter your last name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              required
+            />
+          </div>
           <div>
             <label className="block text-gray-700 mb-1">Email</label>
             <input
@@ -98,4 +116,4 @@ const Signup = () => {
   );
 };
 
-export default Signup; 
+export default Signup;

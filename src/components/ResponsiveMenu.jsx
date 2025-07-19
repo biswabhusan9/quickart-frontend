@@ -1,95 +1,11 @@
-// import { UserButton, useUser, SignInButton, SignOutButton } from '@clerk/clerk-react';
 import { useAuth } from '../context/AuthContext';
-import { FaUserCircle } from 'react-icons/fa';
+import { FaUserCircle, FaUser, FaSignOutAlt, FaCog } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-
-// import React from 'react';
-// import { FaUserCircle } from 'react-icons/fa';
-// import { Link } from 'react-router-dom';
-
-// const ResponsiveMenu = ({ openNav, setOpenNav }) => {
-//   const { user, isSignedIn } = useUser();
-
-//   return (
-//     <div className={`${openNav ? "left-0":"-left-[100%]"} fixed bottom-0 top-0 z-20 flex h-screen w-[75%] flex-col 
-//     justify-between bg-white px-8 pb-6 pt-16 text-black md:hidden rounded-r-xl shadow-md transition-all`}>
-
-      
-//       <div>
-        
-//         <div className='flex items-center justify-start gap-3'>
-//           {isSignedIn ? (
-//             <>
-//               <UserButton size={50} />
-//               <div>
-//                 <h1 className='text-lg font-medium'>Hello, {user?.firstName}</h1>
-//                 <h2 className='text-sm text-slate-500'>Premium User</h2>
-//               </div>
-//             </>
-//           ) : (
-//             <>
-//               <FaUserCircle size={50} />
-//               <div>
-//                 <h1 className='text-lg font-medium'>Welcome, Guest</h1>
-//               </div>
-//             </>
-//           )}
-//         </div>
-
-        
-//         <nav className='mt-12'>
-//           <ul className='flex flex-col gap-6 text-xl font-semibold'>
-//             <Link to="/" onClick={() => setOpenNav(false)}><li>Home</li></Link>
-//             <Link to="/products" onClick={() => setOpenNav(false)}><li>Products</li></Link>
-//             <Link to="/about" onClick={() => setOpenNav(false)}><li>About</li></Link>
-//             <Link to="/contact" onClick={() => setOpenNav(false)}><li>Contact</li></Link>
-//             <Link to="/orders" onClick={() => setOpenNav(false)}><li>Orders</li></Link>
-
-           
-//             {!isSignedIn && (
-//               <li>
-//                 <SignInButton mode="modal">
-//                   <button
-//                     className="w-full mt-4 bg-red-600 text-white text-base font-medium py-2 rounded-md hover:bg-red-700 transition duration-200"
-//                   >
-//                     Sign In
-//                   </button>
-//                 </SignInButton>
-//               </li>
-//             )}
-
-           
-//             {isSignedIn && (
-//               <li>
-//                 <SignOutButton>
-//                   <button
-//                     className="w-full mt-4 bg-gray-200 text-black text-base font-medium py-2 rounded-md hover:bg-gray-300 transition duration-200"
-//                   >
-//                     Sign Out
-//                   </button>
-//                 </SignOutButton>
-//               </li>
-//             )}
-//           </ul>
-//         </nav>
-//       </div>
-
-      
-//       <div className='mt-10 text-center text-sm text-gray-500'>
-//         Made with <span className='text-red-500 text-lg'>❤️</span> by <span className='font-semibold'>Biswa</span>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ResponsiveMenu;
-
 
 const ResponsiveMenu = ({ openNav, setOpenNav }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [profileOpen, setProfileOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -97,65 +13,96 @@ const ResponsiveMenu = ({ openNav, setOpenNav }) => {
     navigate('/');
   };
 
+  const handleMenuLinkClick = () => {
+    setOpenNav(false);
+  };
+
   return (
     <div className={`${openNav ? "left-0":"-left-[100%]"} fixed bottom-0 top-0 z-20 flex h-screen w-[75%] flex-col 
-    justify-between bg-white px-8 pb-6 pt-16 text-black md:hidden rounded-r-xl shadow-md transition-all`}>
+    justify-between bg-white px-6 pb-6 pt-16 text-black md:hidden rounded-r-xl shadow-md transition-all overflow-hidden`}>
 
-      <div>
-        <div className='flex items-center justify-start gap-3'>
-          <button onClick={() => setProfileOpen(!profileOpen)} className='focus:outline-none'>
-            <FaUserCircle size={50} className='text-gray-700 hover:text-red-500 transition' />
-          </button>
-          {user && profileOpen && (
-            <div className='absolute left-4 top-20 bg-white shadow-lg rounded-md border w-56 z-50 p-4 flex flex-col gap-2'>
-              <div className='flex flex-col gap-1 border-b pb-2'>
-                <span className='font-semibold text-gray-800 truncate max-w-[180px]' title={user.email}>{user.email.length > 22 ? user.email.slice(0, 19) + '...' : user.email}</span>
-                <span className='text-xs text-gray-500 capitalize'>Role: {user.role === 'admin' ? 'Admin' : 'User'}</span>
-              </div>
-              {user.role === 'admin' && (
-                <button onClick={() => { setProfileOpen(false); navigate('/admin-dashboard'); setOpenNav(false); }} className='text-left px-2 py-1 rounded hover:bg-gray-100 text-red-500 font-semibold'>Admin Dashboard</button>
+      <div className="flex-1 overflow-y-auto">
+        {/* Profile Section */}
+        <div className='flex items-center justify-between gap-3 mb-6 p-3 bg-gray-50 rounded-lg'>
+          <div className='flex items-center gap-3 flex-1 min-w-0'>
+            <FaUserCircle size={45} className='text-gray-700' />
+            
+            <div className='flex-1 min-w-0'>
+              <h1 className='text-base font-medium text-gray-800 truncate'>
+                {user ? `Hello, ${user.role === 'admin' ? 'Admin' : 'User'}` : 'Welcome, Guest'}
+              </h1>
+              {user && (
+                <p className='text-sm text-gray-500 truncate' title={user.email}>
+                  {user.email}
+                </p>
               )}
-              <button onClick={() => { setProfileOpen(false); handleLogout(); }} className='text-left px-2 py-1 rounded hover:bg-gray-100 text-gray-700'>Logout</button>
             </div>
-          )}
-          <div>
-            <h1 className='text-lg font-medium'>
-              {user ? `Hello, ${user.email}` : 'Welcome, Guest'}
-            </h1>
           </div>
         </div>
 
-        <nav className='mt-12'>
-          <ul className='flex flex-col gap-6 text-xl font-semibold'>
-            <Link to="/" onClick={() => setOpenNav(false)}><li>Home</li></Link>
-            <Link to="/products" onClick={() => setOpenNav(false)}><li>Products</li></Link>
-            <Link to="/about" onClick={() => setOpenNav(false)}><li>About</li></Link>
-            <Link to="/contact" onClick={() => setOpenNav(false)}><li>Contact</li></Link>
-            <Link to="/orders" onClick={() => setOpenNav(false)}><li>Orders</li></Link>
-
-            {!user && (
-              <li>
-                <button 
-                  onClick={() => {
-                    setOpenNav(false);
-                    navigate('/login');
-                  }}
-                  className="w-full mt-4 bg-red-600 text-white py-2 rounded-md"
-                >
-                  Sign In
-                </button>
-              </li>
-            )}
+        {/* Navigation Menu */}
+        <nav className='mb-6'>
+          <ul className='flex flex-col gap-2'>
+            <Link to="/" onClick={handleMenuLinkClick}>
+              <li className='px-3 py-3 rounded-lg hover:bg-gray-50 transition-colors text-lg font-medium'>Home</li>
+            </Link>
+            <Link to="/products" onClick={handleMenuLinkClick}>
+              <li className='px-3 py-3 rounded-lg hover:bg-gray-50 transition-colors text-lg font-medium'>Products</li>
+            </Link>
+            <Link to="/about" onClick={handleMenuLinkClick}>
+              <li className='px-3 py-3 rounded-lg hover:bg-gray-50 transition-colors text-lg font-medium'>About</li>
+            </Link>
+            <Link to="/contact" onClick={handleMenuLinkClick}>
+              <li className='px-3 py-3 rounded-lg hover:bg-gray-50 transition-colors text-lg font-medium'>Contact</li>
+            </Link>
             {user && (
-              <li>
-                <button onClick={handleLogout} className="w-full mt-4 bg-gray-200 text-black py-2 rounded-md">Sign Out</button>
-              </li>
+              <>
+                <Link to="/orders" onClick={handleMenuLinkClick}>
+                  <li className='px-3 py-3 rounded-lg hover:bg-gray-50 transition-colors text-lg font-medium'>Orders</li>
+                </Link>
+                <Link to="/profile" onClick={handleMenuLinkClick}>
+                  <li className='px-3 py-3 rounded-lg hover:bg-gray-50 transition-colors text-lg font-medium'>My Profile</li>
+                </Link>
+                {user.role === 'admin' && (
+                  <Link to="/admin-dashboard" onClick={handleMenuLinkClick}>
+                    <li className='px-3 py-3 rounded-lg hover:bg-gray-50 transition-colors text-lg font-medium'>Admin Dashboard</li>
+                  </Link>
+                )}
+              </>
             )}
           </ul>
         </nav>
+
+        {/* Auth Buttons */}
+        {!user && (
+          <div className='px-3'>
+            <button 
+              onClick={() => {
+                setOpenNav(false);
+                navigate('/login');
+              }}
+              className="w-full bg-red-600 text-white py-3 rounded-lg font-medium hover:bg-red-700 transition-colors"
+            >
+              Sign In
+            </button>
+          </div>
+        )}
+
+        {/* Logout Button for logged in users */}
+        {user && (
+          <div className='px-3'>
+            <button 
+              onClick={handleLogout}
+              className="w-full bg-red-600 text-white py-3 rounded-lg font-medium hover:bg-red-700 transition-colors"
+            >
+              Logout
+            </button>
+          </div>
+        )}
       </div>
 
-      <div className='mt-10 text-center text-sm text-gray-500'>
+      {/* Footer */}
+      <div className='text-center text-sm text-gray-500 pt-4 border-t border-gray-100'>
         Made with <span className='text-red-500 text-lg'>❤️</span> by <span className='font-semibold'>Biswa</span>
       </div>
     </div>

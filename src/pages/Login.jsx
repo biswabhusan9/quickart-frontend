@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
@@ -7,8 +7,18 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
+
+  // Check if user came from signup page
+  useEffect(() => {
+    if (location.state?.fromSignup) {
+      setSuccess('Account created successfully! Please sign in to continue.');
+      setTimeout(() => setSuccess(''), 5000);
+    }
+  }, [location]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -28,7 +38,19 @@ const Login = () => {
       <div className="bg-white/90 rounded-2xl shadow-2xl p-8 w-full max-w-md">
         <h2 className="text-3xl font-bold text-center text-red-600 mb-2">Sign In</h2>
         <p className="text-center text-gray-600 mb-6">Welcome back to <span className="font-semibold text-red-500">QuicKart</span></p>
-        {error && <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-2 rounded mb-4 text-center">{error}</div>}
+        <p className="text-center text-xs text-gray-500 mb-4">Admins can sign in directly with their credentials</p>
+        
+        {error && (
+          <div className="mb-4 p-3 rounded bg-red-100 text-red-700 border border-red-300">
+            {error}
+          </div>
+        )}
+        
+        {success && (
+          <div className="mb-4 p-3 rounded bg-green-100 text-green-700 border border-green-300">
+            {success}
+          </div>
+        )}
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
             <label className="block text-gray-700 mb-1">Email</label>
