@@ -39,5 +39,13 @@
     "globals": "^16.0.0",
     "tailwindcss": "^4.1.11",
     "vite": "^6.3.5"
-  }
+  },
+  
+    "overrides": {
+      "rollup": {
+        "optionalDependencies": {
+          "@rollup/rollup-linux-x64-gnu": "4.6.1"
+        }
+      }
+    }
 }
