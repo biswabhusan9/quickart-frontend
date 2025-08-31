@@ -14,6 +14,7 @@
     "@heroicons/react": "^2.2.0",
     "@tailwindcss/vite": "^4.1.6",
     "axios": "^1.9.0",
+    "firebase": "^12.2.1",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.509.0",
     "quickart": "file:",
@@ -40,12 +41,11 @@
     "tailwindcss": "^4.1.11",
     "vite": "^6.3.5"
   },
-  
-    "overrides": {
-      "rollup": {
-        "optionalDependencies": {
-          "@rollup/rollup-linux-x64-gnu": "4.6.1"
-        }
+  "overrides": {
+    "rollup": {
+      "optionalDependencies": {
+        "@rollup/rollup-linux-x64-gnu": "4.6.1"
       }
     }
+  }
 }

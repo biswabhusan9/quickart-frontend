@@ -7,35 +7,42 @@ import { CartProvider } from './context/CartContext.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { ToastContainer } from 'react-toastify';
 import ScrollToTop from 'react-scroll-to-top';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
 
-createRoot(document.getElementById('root')).render(
-  <DataProvider>
-    <CartProvider>
+const root = createRoot(document.getElementById('root'));
+
+root.render(
+  <StrictMode>
+    <ErrorBoundary>
       <AuthProvider>
-        <App />
-        <ScrollToTop
-          smooth
-          color="white"
-          style={{
-            backgroundColor: '#fa2d37',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        />
-        <ToastContainer
-          position="bottom-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick={false}
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-        />
+        <DataProvider>
+          <CartProvider>
+            <App />
+            <ScrollToTop
+              smooth
+              color="white"
+              style={{
+                backgroundColor: '#fa2d37',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            />
+            <ToastContainer
+              position="bottom-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick={false}
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="light"
+            />
+          </CartProvider>
+        </DataProvider>
       </AuthProvider>
-    </CartProvider>
-  </DataProvider>
+    </ErrorBoundary>
+  </StrictMode>
 );

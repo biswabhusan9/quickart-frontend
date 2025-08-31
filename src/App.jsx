@@ -18,6 +18,7 @@ import Signup from './pages/Signup';
 import { useAuth } from './context/AuthContext';
 import AdminDashboard from './pages/AdminDashboard';
 import Profile from './pages/Profile';
+import { initializeFirestore } from './firebase/initialize';
 
 const App = () => {
   const [location, setLocation] = useState();
@@ -45,20 +46,28 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    // Only load from 'cart' key
-    const storedCart = localStorage.getItem('cart');
-    if (storedCart) {
-      try {
-        const parsed = JSON.parse(storedCart);
-        if (Array.isArray(parsed)) setCartItem(parsed);
-        else setCartItem([]);
-      } catch {
-        setCartItem([]);
-      }
-    } else {
-      setCartItem([]);
+    console.log('App mounted');
+    // Initialize Firebase with sample data (only in development)
+    if (import.meta.env.DEV) {
+      console.log('Initializing Firestore with sample data');
+      initializeFirestore()
+        .then(() => console.log('Sample data initialized'))
+        .catch(error => console.error('Failed to initialize sample data:', error));
     }
   }, []);
+
+  const { loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900 mb-4"></div>
+          <p className="text-xl font-semibold">Loading your application...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter>
